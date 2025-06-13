@@ -1,48 +1,48 @@
 export const COIN_PRICE = [
   {
-    id: 1,
+    id: "1",
     coinAmount: 1,
     price: 550,
     coinExp: 30,
     isBgBlue: false,
   },
   {
-    id: 2,
+    id: "2",
     coinAmount: 5,
     price: 2750,
     coinExp: 30,
     isBgBlue: false,
   },
   {
-    id: 3,
+    id: "3",
     coinAmount: 10,
     price: 5500,
     coinExp: 30,
     isBgBlue: false,
   },
   {
-    id: 4,
+    id: "4",
     coinAmount: 20,
     price: 11000,
     coinExp: 30,
     isBgBlue: false,
   },
   {
-    id: 5,
+    id: "5",
     coinAmount: 30,
     price: 16500,
     coinExp: 30,
     isBgBlue: false,
   },
   {
-    id: 6,
+    id: "6",
     coinAmount: 180,
     price: 99000,
     coinExp: 90,
     isBgBlue: true,
   },
   {
-    id: 7,
+    id: "7",
     coinAmount: 300,
     price: 165000,
     coinExp: 180,
@@ -52,7 +52,7 @@ export const COIN_PRICE = [
 
 export const SUBSCRIBE_OPTION = [
   {
-    id: 1,
+    id: "1",
     option_ko: "베이직",
     option_en: "Basic",
     coinAmount: 90,
@@ -64,7 +64,7 @@ export const SUBSCRIBE_OPTION = [
     comment: "가볍게 시작하기",
   },
   {
-    id: 2,
+    id: "2",
     option_ko: "스탠다드",
     option_en: "Standard",
     coinAmount: 130,
@@ -76,7 +76,7 @@ export const SUBSCRIBE_OPTION = [
     comment: "인기있는 요금제",
   },
   {
-    id: 3,
+    id: "3",
     option_ko: "프로",
     option_en: "Pro",
     coinAmount: 190,
