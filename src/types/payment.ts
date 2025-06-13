@@ -5,7 +5,7 @@ export type TPaymentProps = {
 };
 
 export type TCoinBody = {
-  id: number;
+  id: string;
   coinAmount: number;
   price: number;
   coinExp: number;
