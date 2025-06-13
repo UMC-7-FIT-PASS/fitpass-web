@@ -39,7 +39,7 @@ const PaymentDetails = ({ type, item, paymentMethod }: TPaymentProps & IPaymentD
       case "registeredCard":
         return "등록 카드 결제";
       case "creditCard":
-        return "";
+        return "신용/체크카드 결제";
       case "kakaoPay":
         return "카카오페이 간편 결제";
       case "naverPay":
