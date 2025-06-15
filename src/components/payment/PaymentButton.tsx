@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TCoinBody } from "../../types/payment";
 import Modal from "../Modal";
 import { useNavigate } from "react-router-dom";
 import { useStartNicePayment } from "../../hooks/useNicePayment/useStartPayment";
+import PortOne from "@portone/browser-sdk/v2";
 import { useCompleteNicePayment } from "../../hooks/useNicePayment/useCompletePayment";
 
 interface PaymentButtonProps {
@@ -15,38 +16,94 @@ const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButt
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const navigate = useNavigate();
+  const storeId = import.meta.env.VITE_STORE_ID;
+  const channelKey = import.meta.env.VITE_CHANNEL_KEY;
 
   const { mutate: startNicePayment } = useStartNicePayment();
   const { mutate: completeNicePayment } = useCompleteNicePayment();
+
+  // 리다이렉트 방식(모바일) 후 복귀 시 complete 처리
+  useEffect(() => {
+    const isReturned = sessionStorage.getItem("isReturnedFromPayment");
+    const paymentId = sessionStorage.getItem("paymentId");
+
+    if (isReturned === "true" && paymentId) {
+      completeNicePayment(
+        { paymentId },
+        {
+          onSuccess: () => {
+            setIsCompleted(true);
+            setIsModalOpen(true);
+            sessionStorage.removeItem("paymentId");
+            sessionStorage.removeItem("isReturnedFromPayment");
+          },
+          onError: (error) => {
+            console.error(error.message);
+            alert("결제 처리에 실패했습니다.");
+            setIsModalOpen(false);
+            sessionStorage.removeItem("paymentId");
+            sessionStorage.removeItem("isReturnedFromPayment");
+          },
+        }
+      );
+    }
+  }, []);
 
   const handleClickPay = () => {
     if (selectedPayOption === null) {
       alert("결제 수단을 선택해주세요.");
       return;
     }
-    setIsModalOpen((prev) => !prev);
+    setIsModalOpen(true);
   };
 
-  const handlePayCard = (paymentId: string) => {
-    completeNicePayment(
-      {
-        paymentId: paymentId,
-      },
-      {
-        onSuccess: () => {
-          setIsCompleted(true);
-          setIsModalOpen(true);
-        },
-        onError: (error) => {
-          console.error(error.message);
-          setIsModalOpen(false);
-        },
-      }
-    );
+  // paymentId로 포트원 결제창 호출
+  const handleRequestPortOne = (paymentId: string) => {
+    sessionStorage.setItem("paymentId", paymentId);
+    sessionStorage.setItem("isReturnedFromPayment", "true");
+
+    const isMobile = /iPhone|Android/i.test(navigator.userAgent);
+
+    PortOne.requestPayment({
+      storeId,
+      channelKey,
+      paymentId,
+      orderName: "핏패스 테스트 코인 결제",
+      totalAmount: selectItem.price,
+      currency: "CURRENCY_KRW",
+      payMethod: "CARD",
+      ...(isMobile && {
+        redirectUrl: window.location.href,
+      }),
+    }).then((response) => {
+      if (!response) return;
+
+      const savedPaymentId = sessionStorage.getItem("paymentId");
+      if (!savedPaymentId) return;
+
+      completeNicePayment(
+        { paymentId: savedPaymentId },
+        {
+          onSuccess: () => {
+            setIsCompleted(true);
+            setIsModalOpen(true);
+            sessionStorage.removeItem("paymentId");
+            sessionStorage.removeItem("isReturnedFromPayment");
+          },
+          onError: (error) => {
+            console.error(error.message);
+            alert("결제 처리에 실패했습니다.");
+            setIsModalOpen(false);
+            sessionStorage.removeItem("paymentId");
+            sessionStorage.removeItem("isReturnedFromPayment");
+          },
+        }
+      );
+    });
   };
 
-  // 결제 요청
-  const handleCompletePay = () => {
+  // 결제 시작 → paymentId 발급
+  const handleStartPay = () => {
     startNicePayment(
       {
         itemId: selectItem.id,
@@ -55,7 +112,7 @@ const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButt
       {
         onSuccess: (response) => {
           const paymentId = response.result.paymentId;
-          handlePayCard(paymentId);
+          handleRequestPortOne(paymentId);
         },
         onError: (error) => {
           console.error(error.message);
@@ -66,7 +123,7 @@ const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButt
   };
 
   const handleCloseModal = () => {
-    setIsModalOpen((prev) => !prev);
+    setIsModalOpen(false);
     if (isCompleted) {
       navigate("/my");
     }
@@ -87,7 +144,7 @@ const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButt
         <Modal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          onSuccess={isCompleted ? handleCloseModal : handleCompletePay}
+          onSuccess={isCompleted ? handleCloseModal : handleStartPay}
           title={isCompleted ? "구매가 완료되었습니다." : "구매하시겠습니까?"}
           btn1Text={isCompleted ? null : "아니요"}
           btn2Text={isCompleted ? "확인" : "네, 구매하겠습니다"}

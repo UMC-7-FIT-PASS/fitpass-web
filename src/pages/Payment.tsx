@@ -1,22 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BigDropdown from "../components/payment/BigDropdown";
 import PaymentDetails from "../components/payment/PaymentDetails";
 import SelectPayOption from "../components/payment/SelectPayOption";
 import { COIN_PRICE } from "../constants/price-menu";
-import { TCoinBody, TPaymentProps, TPayOption, TSubscribeBody } from "../types/payment";
+import { TCoinBody, TPaymentProps, TPayOption } from "../types/payment";
 import PaymentInfo from "../components/payment/PaymentInfo";
-import PaymentButton from "../components/payment/paymentButton";
+import PaymentButton from "../components/payment/PaymentButton";
+import { useGetCoinInfo } from "../hooks/useGetAdminCoins";
 
 function Payment({ type }: TPaymentProps) {
-  const [selectItem, setSelectItem] = useState<TCoinBody | TSubscribeBody>(COIN_PRICE[0]);
+  const [selectItem, setSelectItem] = useState<TCoinBody | null>(null);
   const [selectedPayOption, setSelectedPayOption] = useState<string | null>(null);
   const [isChecked, setIsChecked] = useState(false);
+
+  const { data: coinInfoData } = useGetCoinInfo();
+
+  // coinInfoData 받아오면 초기값 설정
+  useEffect(() => {
+    if (coinInfoData?.result?.length) {
+      const first = coinInfoData.result[0];
+      setSelectItem({
+        id: first.coinType,
+        coinAmount: first.coinQuantity,
+        price: first.price,
+        coinExp: first.expirationPeriod,
+      });
+    }
+  }, [coinInfoData]);
 
   const handlePayOptionChange = (option: TPayOption | null) => {
     setSelectedPayOption(option);
   };
 
-  const dropdownOptions = COIN_PRICE.map((item) => `${item.coinAmount}코인`);
+  const dropdownOptions = coinInfoData?.result?.map((item: TCoinBody) => `${item.coinAmount} 코인`);
 
   return (
     <div className="w-full h-full bg-white-200 overflow-y-auto flex flex-col justify-between">
@@ -38,7 +54,9 @@ function Payment({ type }: TPaymentProps) {
           setSelectedOption={setSelectedPayOption}
           onPayOptionSelect={handlePayOptionChange}
         />
-        <PaymentDetails type={type} item={selectItem} paymentMethod={selectedPayOption} />
+        {selectItem && (
+          <PaymentDetails type={type} item={selectItem} paymentMethod={selectedPayOption} />
+        )}
         <PaymentInfo isChecked={isChecked} setIsChecked={setIsChecked} />
       </div>
 
