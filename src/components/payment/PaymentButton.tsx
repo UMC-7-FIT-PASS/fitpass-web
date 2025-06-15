@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TCoinBody } from "../../types/payment";
+import { ICoin } from "../../types/payment";
 import Modal from "../Modal";
 import { useNavigate } from "react-router-dom";
 import { useStartNicePayment } from "../../hooks/useNicePayment/useStartPayment";
@@ -9,7 +9,7 @@ import { useCompleteNicePayment } from "../../hooks/useNicePayment/useCompletePa
 interface PaymentButtonProps {
   selectedPayOption: string | null;
   isChecked: boolean;
-  selectItem: TCoinBody;
+  selectItem: ICoin;
 }
 
 const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButtonProps) => {
@@ -106,7 +106,7 @@ const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButt
   const handleStartPay = () => {
     startNicePayment(
       {
-        itemId: selectItem.id,
+        itemId: selectItem.name,
         price: selectItem.price,
       },
       {

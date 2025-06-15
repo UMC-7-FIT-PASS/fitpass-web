@@ -1,17 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import { CoinCard } from "../components/buyCoin/CoinCard";
 import { useGetCoinInfo } from "../hooks/useGetAdminCoins";
-
-interface ICoin {
-  coinType: string;
-  coinQuantity: number;
-  expirationPeriod: number;
-  price: number;
-}
+import { ICoin } from "../types/payment";
+import { useCoinStore } from "../store/coinStore";
+import { useEffect } from "react";
 
 function BuyCoins() {
   const navigate = useNavigate();
   const { data: coinInfoData } = useGetCoinInfo();
+  const setCoinInfo = useCoinStore((state) => state.setCoinInfo);
+
+  useEffect(() => {
+    if (coinInfoData?.result) {
+      setCoinInfo(coinInfoData.result);
+    }
+  }, [coinInfoData, setCoinInfo]);
 
   return (
     <div className="w-full min-h-[calc(100vh-165px)] bg-white-200 overflow-y-auto py-4">

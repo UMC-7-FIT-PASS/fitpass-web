@@ -2,37 +2,38 @@ import { useEffect, useState } from "react";
 import BigDropdown from "../components/payment/BigDropdown";
 import PaymentDetails from "../components/payment/PaymentDetails";
 import SelectPayOption from "../components/payment/SelectPayOption";
-import { COIN_PRICE } from "../constants/price-menu";
-import { TCoinBody, TPaymentProps, TPayOption } from "../types/payment";
+import { ICoin, TPaymentProps, TPayOption } from "../types/payment";
 import PaymentInfo from "../components/payment/PaymentInfo";
 import PaymentButton from "../components/payment/PaymentButton";
-import { useGetCoinInfo } from "../hooks/useGetAdminCoins";
+import { useCoinStore } from "../store/coinStore";
 
 function Payment({ type }: TPaymentProps) {
-  const [selectItem, setSelectItem] = useState<TCoinBody | null>(null);
+  const [selectItem, setSelectItem] = useState<ICoin | null>(null);
   const [selectedPayOption, setSelectedPayOption] = useState<string | null>(null);
   const [isChecked, setIsChecked] = useState(false);
 
-  const { data: coinInfoData } = useGetCoinInfo();
+  const coinInfo = useCoinStore((state) => state.coinInfo);
 
-  // coinInfoData 받아오면 초기값 설정
+  // coinInfo 받아오면 초기값 설정
   useEffect(() => {
-    if (coinInfoData?.result?.length) {
-      const first = coinInfoData.result[0];
+    if (coinInfo.length) {
+      const first = coinInfo[0];
       setSelectItem({
-        id: first.coinType,
-        coinAmount: first.coinQuantity,
+        coinType: first.coinType,
+        name: first.name,
         price: first.price,
-        coinExp: first.expirationPeriod,
+        coinQuantity: first.coinQuantity,
+        coinAddition: first.coinAddition,
+        expirationPeriod: first.expirationPeriod,
       });
     }
-  }, [coinInfoData]);
+  }, [coinInfo]);
 
   const handlePayOptionChange = (option: TPayOption | null) => {
     setSelectedPayOption(option);
   };
 
-  const dropdownOptions = coinInfoData?.result?.map((item: TCoinBody) => `${item.coinAmount} 코인`);
+  const dropdownOptions = coinInfo?.map((item: ICoin) => `${item.name}`);
 
   return (
     <div className="w-full h-full bg-white-200 overflow-y-auto flex flex-col justify-between">
@@ -42,7 +43,7 @@ function Payment({ type }: TPaymentProps) {
           <BigDropdown
             options={dropdownOptions}
             onOptionSelect={(option) => {
-              const selectedItem = COIN_PRICE.find((item) => `${item.coinAmount}코인` === option);
+              const selectedItem = coinInfo?.find((item) => `${item.name}` === option);
               if (selectedItem) {
                 setSelectItem(selectedItem);
               }
@@ -63,7 +64,7 @@ function Payment({ type }: TPaymentProps) {
       <PaymentButton
         selectedPayOption={selectedPayOption}
         isChecked={isChecked}
-        selectItem={selectItem as TCoinBody}
+        selectItem={selectItem as ICoin}
       />
     </div>
   );
