@@ -15,6 +15,7 @@ interface PaymentButtonProps {
 const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButtonProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
   const navigate = useNavigate();
   const storeId = import.meta.env.VITE_STORE_ID;
   const channelKey = import.meta.env.VITE_CHANNEL_KEY;
@@ -68,7 +69,7 @@ const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButt
       storeId,
       channelKey,
       paymentId,
-      orderName: "핏패스 테스트 코인 결제",
+      orderName: `${selectItem.name} (${selectItem.expirationPeriod}일 유효)`,
       totalAmount: selectItem.price,
       currency: "CURRENCY_KRW",
       payMethod: "CARD",
@@ -76,15 +77,27 @@ const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButt
         redirectUrl: window.location.href,
       }),
     }).then((response) => {
-      if (!response) return;
-
       const savedPaymentId = sessionStorage.getItem("paymentId");
+
+      const message = response?.message?.toLowerCase();
+      const isCanceled = message?.includes("취소") || message?.includes("cancel");
+
+      if (!response || isCanceled) {
+        alert("결제가 취소되었습니다.");
+        sessionStorage.removeItem("paymentId");
+        sessionStorage.removeItem("isReturnedFromPayment");
+        setIsModalOpen(false);
+        return;
+      }
+
       if (!savedPaymentId) return;
 
+      setIsLoadingComplete(true);
       completeNicePayment(
         { paymentId: savedPaymentId },
         {
           onSuccess: () => {
+            setIsLoadingComplete(false);
             setIsCompleted(true);
             setIsModalOpen(true);
             sessionStorage.removeItem("paymentId");
@@ -93,6 +106,7 @@ const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButt
           onError: (error) => {
             console.error(error.message);
             alert("결제 처리에 실패했습니다.");
+            setIsLoadingComplete(false);
             setIsModalOpen(false);
             sessionStorage.removeItem("paymentId");
             sessionStorage.removeItem("isReturnedFromPayment");
@@ -128,6 +142,18 @@ const PaymentButton = ({ selectedPayOption, isChecked, selectItem }: PaymentButt
       navigate("/my");
     }
   };
+
+  if (isLoadingComplete) {
+    return (
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {}}
+        onSuccess={() => {}}
+        title="구매 처리 중입니다."
+        btn2Text="잠시만 기다려주세요."
+      />
+    );
+  }
 
   return (
     <>
