@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DotVector from "../../../assets/img/Vector.png";
 import Modal from "../../../components/Modal";
+import { deleteAdminFitness, changeAdminFitnessStatus } from "../../../apis/adminFitness/adminFitnessData";
 
 interface FitnessRowDropdownProps {
   fitnessId: number;
+  onDataChange: () => void;
 }
 
-function FitnessRowDropdown({ fitnessId }: FitnessRowDropdownProps) {
+function FitnessRowDropdown({ fitnessId, onDataChange }: FitnessRowDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -28,25 +30,37 @@ function FitnessRowDropdown({ fitnessId }: FitnessRowDropdownProps) {
         setIsDeleteModalOpen(true);
         break;
       case "구매 상태 변경":
-        // 구매 상태 변경 로직 구현
-        console.log("구매 상태 변경:", fitnessId);
+        handleStatusChange();
         break;
       default:
         break;
     }
   };
 
-  const handleDeleteConfirm = () => {
-    // 삭제 API 호출
-    console.log("삭제:", fitnessId);
-    setIsDeleteModalOpen(false);
+  const handleStatusChange = async () => {
+    try {
+      await changeAdminFitnessStatus(fitnessId);
+      onDataChange();
+    } catch (error) {
+      console.error("구매 상태 변경 실패:", error);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteAdminFitness(fitnessId);
+      setIsDeleteModalOpen(false);
+      onDataChange(); 
+    } catch (error) {
+      console.error("삭제 실패:", error);
+      setIsDeleteModalOpen(false);
+    }
   };
 
   const handleDeleteCancel = () => {
     setIsDeleteModalOpen(false);
   };
-
-  // 외부 클릭 시 드롭다운 닫기
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;

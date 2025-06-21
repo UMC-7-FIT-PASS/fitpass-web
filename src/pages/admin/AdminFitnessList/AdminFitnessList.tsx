@@ -3,8 +3,7 @@ import { SearchGray } from "../../../assets/svg";
 import Dropdown from "./Dropdown";
 import FitnessRowDropdown from "./FitnessRowDropdown";
 import { axiosInstance } from "../../../apis/axios-instance";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pagination } from "../../../components/Pagination";
 import { LoadingSpinner } from "../../../components/LoadingSpinner";
 import NotFound from "../../NotFound";
@@ -33,7 +32,7 @@ function AdminFitnessList() {
   const [selectedFilter, setSelectedFilter] = useState<keyof TListData>("fitnessName");
   const [page, setPage] = useState(0);
 
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const dropDownMap: Record<string, keyof TListData> = {
     업체명: "fitnessName",
@@ -45,6 +44,10 @@ function AdminFitnessList() {
     setSelectedFilterLabel(label);
     setSelectedFilter(dropDownMap[label]);
     setPage(0);
+  };
+
+  const handleDataChange = () => {
+    queryClient.invalidateQueries({ queryKey: ["fitnessList"] });
   };
 
   // 디바운싱
@@ -134,7 +137,10 @@ function AdminFitnessList() {
                 <td>{item.createdAt.split("T")[0]}</td>
                 <td>{item.purchasable ? "구매 가능" : "구매 불가"}</td>
                 <td className="relative">
-                  <FitnessRowDropdown fitnessId={item.fitnessId} />
+                  <FitnessRowDropdown 
+                    fitnessId={item.fitnessId} 
+                    onDataChange={handleDataChange}
+                  />
                 </td>
               </tr>
             ))}
