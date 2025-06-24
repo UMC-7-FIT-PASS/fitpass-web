@@ -1,9 +1,9 @@
 # .coderabbit.yaml
-language: "ko-KR" # 한국말로 설정
+language: "ko-KR"
 early_access: false
 reviews:
-  profile: "chill" # 리뷰 간단히
-  request_changes_workflow: true # 코드래빗이 리뷰 끝나면 알아서 PR 승인
+  profile: "chill"
+  request_changes_workflow: true
   high_level_summary: true
   poem: false
   review_status: true
@@ -11,5 +11,7 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+  allowed_base_branches:
+    - "*" # 모든 브랜치에서 PR 리뷰
 chat:
   auto_reply: true
