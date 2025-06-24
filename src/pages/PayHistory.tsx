@@ -2,50 +2,22 @@ import { useEffect, useState } from "react";
 import { IcEmptyDollarBlue } from "../assets/svg";
 import { PaymentCard } from "../components/paymentCard/PaymentCard";
 import { Toggle } from "../components/paymentCard/Toggle";
-import { useGetPayHistory, usePostPayDeactivate } from "../hooks/useGetPayHistory";
+import { useGetPayHistory } from "../hooks/useGetPayHistory";
 import { useInView } from "react-intersection-observer";
 import { GuideLogin } from "./GuideLogin";
 import { TPayHistoryItem, TPayQuery } from "../types/payHistory";
 import { useAuth } from "../context/AuthContext";
 import SkeletonPaymentCard from "./../components/paymentCard/SkeletonPaymentCard";
-import Modal from "../components/Modal";
-import { useNavigate } from "react-router-dom";
 
 function PayHistory() {
-  const navigate = useNavigate();
   const [query, setQuery] = useState<TPayQuery>("ALL");
   const [isSubscribing, setIsSubscribing] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
   const { isLogin } = useAuth();
 
   const { data, isFetching, hasNextPage, fetchNextPage, isPending, isError, error } =
     useGetPayHistory(query);
-  const { mutate } = usePostPayDeactivate();
 
   const handleAllClick = () => setQuery("ALL");
-  const handlePlanClick = () => setQuery("PLAN");
-  const handleCoinClick = () => setQuery("COIN");
-
-  const handleModalOpen = () => {
-    setIsModalOpen(true);
-  };
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    if (isCompleted) {
-      navigate("/my");
-    }
-  };
-  const handleCompleteDeactivate = () => {
-    mutate(undefined, {
-      onSuccess: () => {
-        setIsCompleted(true);
-      },
-      onError: () => {
-        alert("에러가 발생했습니다. 다시 시도해주세요.");
-      },
-    });
-  };
 
   const { ref, inView } = useInView({ threshold: 0 });
   useEffect(() => {
@@ -95,13 +67,7 @@ function PayHistory() {
       <div className="w-full flex flex-col gap-6">
         <div className="w-full flex justify-between items-center">
           <h1 className="text-25px font-extrabold">구매 내역</h1>
-          <Toggle
-            items={[
-              { label: "전체", onClick: handleAllClick },
-              { label: "요금제", onClick: handlePlanClick },
-              { label: "코인", onClick: handleCoinClick },
-            ]}
-          />
+          <Toggle items={[{ label: "전체", onClick: handleAllClick }]} />
         </div>
         {isPending ? (
           <div className="w-full flex flex-col justify-center gap-3">
@@ -135,25 +101,6 @@ function PayHistory() {
           </div>
         )}
       </div>
-      {isSubscribing ? (
-        <button
-          className="w-[340px] h-[51px] blueButton bottom-navbar fixed left-0 right-0 mx-auto"
-          onClick={handleModalOpen}
-        >
-          정기 구독 해지하기
-        </button>
-      ) : null}
-
-      {isModalOpen && (
-        <Modal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSuccess={isCompleted ? handleCloseModal : handleCompleteDeactivate}
-          title={isCompleted ? "구독 해지가 완료되었습니다." : "구독을 해지하시겠습니까?"}
-          btn1Text={isCompleted ? null : "아니요"}
-          btn2Text={isCompleted ? "확인" : "네"}
-        />
-      )}
     </div>
   );
 }

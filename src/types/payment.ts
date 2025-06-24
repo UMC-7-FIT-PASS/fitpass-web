@@ -20,19 +20,6 @@ export interface ICoin {
   expirationPeriod: number;
 }
 
-export type TSubscribeBody = {
-  id: number;
-  option_ko: string;
-  option_en: string;
-  coinAmount: number;
-  extroCoinAmount: number | null;
-  totalCoinAmount: number;
-  price: number;
-  recommendTarget: string;
-  benefit: string;
-  comment: string;
-};
-
 export type TChangeSub = {
   planName: string;
 };

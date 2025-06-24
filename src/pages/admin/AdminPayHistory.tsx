@@ -15,13 +15,6 @@ function AdminPayHistory() {
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const [page, setPage] = useState(0);
 
-  const handlePlanClick = () => {
-    setType("패스");
-    setSearchQuery(null);
-    setPage(0);
-    setSearchValue("");
-  };
-
   const handleCoinClick = () => {
     setType("코인");
     setSearchQuery(null);
@@ -49,12 +42,7 @@ function AdminPayHistory() {
         <h1 className="adminTitle">결제 → 구매 내역</h1>
         <div className="w-full flex flex-col gap-5">
           <div className="flex justify-between items-center">
-            <Toggle
-              items={[
-                { label: "코인", onClick: handleCoinClick },
-                { label: "패스", onClick: handlePlanClick },
-              ]}
-            />
+            <Toggle items={[{ label: "코인", onClick: handleCoinClick }]} />
             <div className="flex gap-4">
               <SearchBar
                 onSearch={handleSearch}
