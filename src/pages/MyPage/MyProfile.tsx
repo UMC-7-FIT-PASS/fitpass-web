@@ -10,7 +10,6 @@ interface MyProfileProps {
     id: number;
     pictureUrl: string;
     name: string;
-    planType: string | null;
     coinQuantity: number;
   };
   updateProfileMutation: (file: File) => void;

@@ -11,7 +11,6 @@ import SkeletonPaymentCard from "./../components/paymentCard/SkeletonPaymentCard
 
 function PayHistory() {
   const [query, setQuery] = useState<TPayQuery>("ALL");
-  const [isSubscribing, setIsSubscribing] = useState(false);
   const { isLogin } = useAuth();
 
   const { data, isFetching, hasNextPage, fetchNextPage, isPending, isError, error } =
@@ -25,14 +24,6 @@ function PayHistory() {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetching, fetchNextPage]);
-
-  useEffect(() => {
-    if (data?.pages[0]?.isSubscribing === true) {
-      setIsSubscribing(true);
-    } else {
-      setIsSubscribing(false);
-    }
-  }, [data?.pages, setIsSubscribing]);
 
   if (isError) {
     if ((error as { status?: number })?.status === 401) {
@@ -59,11 +50,7 @@ function PayHistory() {
   };
 
   return (
-    <div
-      className={`bg-white-200 px-5 pt-6 w-full max-w-content min-h-full absolute ${
-        isSubscribing ? "pb-36" : "pb-navbar"
-      }`}
-    >
+    <div className={`bg-white-200 px-5 pt-6 w-full max-w-content min-h-full absolute`}>
       <div className="w-full flex flex-col gap-6">
         <div className="w-full flex justify-between items-center">
           <h1 className="text-25px font-extrabold">구매 내역</h1>
@@ -83,14 +70,8 @@ function PayHistory() {
                   {page.data.map((item: TPayHistoryItem) => (
                     <PaymentCard
                       key={item.id}
-                      color={item.planType === "NONE" ? "skyBlue" : "white"}
-                      title={
-                        item.planType === "NONE" ? (
-                          <CoinTitle text={item.coinCount} />
-                        ) : (
-                          item.planType
-                        )
-                      }
+                      color={"skyBlue"}
+                      title={<CoinTitle text={item.coinCount} />}
                       content={`${item.price.toLocaleString()}원  |  ${formatDate(item.createdAt)}`}
                     />
                   ))}

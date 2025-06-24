@@ -1,7 +1,7 @@
 export type TPayOption = "registeredCard" | "creditCard" | "kakaoPay" | "naverPay";
 
 export type TPaymentProps = {
-  type: "subscribe" | "buy-coins";
+  type: "buy-coins";
 };
 
 export type TCoinBody = {
@@ -19,7 +19,3 @@ export interface ICoin {
   coinAddition: number;
   expirationPeriod: number;
 }
-
-export type TChangeSub = {
-  planName: string;
-};

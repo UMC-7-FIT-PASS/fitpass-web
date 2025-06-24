@@ -60,19 +60,11 @@ function AdminPayHistory() {
                 <th>{type === "코인" ? "이메일" : "계정"}</th>
                 <th>전화번호</th>
                 <th>{type === "코인" ? "결제일" : "구매일"}</th>
-                {type === "코인" ? (
-                  <>
-                    <th>결제 플랜</th>
-                    <th>결제 금액 (원)</th>
-                  </>
-                ) : (
-                  <>
-                    <th>결제 업체</th>
-                    <th>결제 코인</th>
-                    <th>패스 상태</th>
-                    <th>사용 시각</th>
-                  </>
-                )}
+
+                <>
+                  <th>결제 플랜</th>
+                  <th>결제 금액 (원)</th>
+                </>
               </tr>
             </thead>
             <tbody className="text-12px">
@@ -83,21 +75,10 @@ function AdminPayHistory() {
                   <td>{entry.account}</td>
                   <td>{entry.phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")}</td>
                   <td>{new Date(entry.createdAt).toLocaleString()}</td>
-                  {type === "코인" ? (
-                    <>
-                      <td>{entry.planType}</td>
-                      <td>{entry.price?.toLocaleString()} 원</td>
-                    </>
-                  ) : (
-                    <>
-                      <td>{entry.fitnessName}</td>
-                      <td>{entry.coinCount} 코인</td>
-                      <td>{entry.passStatus}</td>
-                      <td>
-                        {entry.activeTime ? new Date(entry.activeTime).toLocaleString() : "-"}
-                      </td>
-                    </>
-                  )}
+                  <>
+                    <td>{entry.planType}</td>
+                    <td>{entry.price?.toLocaleString()} 원</td>
+                  </>
                 </tr>
               ))}
               {data?.result?.content?.length === 0 && searchQuery && (
